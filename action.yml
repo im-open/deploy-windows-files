@@ -40,5 +40,5 @@ runs:
           -password $secure_password `
           -source_zip_file_path ${{ inputs.source-zip-file-path }} `
           -deployment_folder_path ${{ inputs.deployment-folder-path }} `
-          -clean_deployment_folder ${{ inputs.clean-deployment-folder == 'true' }} `
+          -clean_deployment_folder ('${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true')  `
           -cert_path ${{ inputs.server-public-key }}
