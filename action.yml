@@ -19,7 +19,7 @@ inputs:
     description: 'The path to deploy the application files to'
     required: true
   clean-deployment-folder:
-    description:  'Remove files that are not in the source zip file, accepts values of true or false'
+    description: 'Remove files that are not in the source zip file, accepts values of true or false'
     required: false
     default: 'false'
   server-public-key:
@@ -38,7 +38,7 @@ runs:
           -server ${{ inputs.server }} `
           -user_id ${{ inputs.service-account-id }} `
           -password $secure_password `
-          -source_zip_file_path ${{ inputs.source-zip-file-path }}
-          -deployment_folder_path ${{ inputs.deployment-folder-path }}
-          -clean_deployment_folder ${{ inputs.clean-deployment-folder == 'true' }}
+          -source_zip_file_path ${{ inputs.source-zip-file-path }} `
+          -deployment_folder_path ${{ inputs.deployment-folder-path }} `
+          -clean_deployment_folder ${{ inputs.clean-deployment-folder == 'true' }} `
           -cert_path ${{ inputs.server-public-key }}

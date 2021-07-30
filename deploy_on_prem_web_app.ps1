@@ -10,7 +10,7 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$deployment_folder_path,
     [parameter(Mandatory = $true)]
-    [bool]$clean_deployment_folder = $false,
+    [bool]$clean_deployment_folder,
     [parameter(Mandatory = $true)]
     [string]$cert_path
 )
@@ -36,7 +36,6 @@ if ($clean_deployment_folder) {
 Copy-Item $source_zip_file_path `
     -Destination $deployment_folder_path `
     -ToSession $so -Credential $credential -Recurse
-
 
 Expand-Archive -Path $destination_zip_file_path `
     -DestinationPath $deployment_folder_path `
