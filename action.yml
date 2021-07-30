@@ -1,22 +1,44 @@
-name: 'Composite Run Steps Action Template'
+name: 'Deploy On-Prem Web Application'
 
-description: 'Add description here'
+description: 'An action that deploys a web application to an on-prem hosted IIS server.'
 
 inputs:
-  input-1:
-    description: 'Add a description here'
+  server:
+    description: 'The name of the target server'
     required: true
-
-outputs:
-  output-1:
-    description: 'Add description here'
-    value: '${{ steps.step_1.outputs.world }}'
+  service-account-id:
+    description: 'The service account name'
+    required: true
+  service-account-password:
+    description: 'The service account password'
+    required: true
+  source-zip-file-path:
+    description: 'The path to ths zip file the application files from'
+    required: true
+  deployment-folder-path:
+    description: 'The path to deploy the application files to'
+    required: true
+  clean-deployment-folder:
+    description:  'Remove files that are not in the source zip file, accepts values of true or false'
+    required: false
+    default: 'false'
+  server-public-key:
+    description: 'Path to remote server public ssl key (local path like c:\folder)'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Step 1
-      id: step_1
-      shell: bash
+    - name: Action
+      id: action
+      shell: powershell
       run: |
-        echo "::set-output name=hello::world"
+        $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
+        ${{ github.action_path }}/deploy_on_prem_web_app.ps1 `
+          -server ${{ inputs.server }} `
+          -user_id ${{ inputs.service-account-id }} `
+          -password $secure_password `
+          -source_zip_file_path ${{ inputs.source-zip-file-path }}
+          -deployment_folder_path ${{ inputs.deployment-folder-path }}
+          -clean_deployment_folder ${{ inputs.clean-deployment-folder == 'true' }}
+          -cert_path ${{ inputs.server-public-key }}
