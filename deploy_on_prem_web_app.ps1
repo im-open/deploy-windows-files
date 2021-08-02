@@ -18,9 +18,9 @@ Param(
 Write-Output "Deploy On-Prem Web Application"
 Write-Output "Server: $server"
 
-# $source_file_parts = $source_zip_file_path.Split('\')
-# $source_file_name = $source_file_parts[$source_file_parts.Length - 1]
-# $destination_zip_file_path = (Join-Path -Path $deployment_folder_path -ChildPath $source_file_name)
+$source_file_parts = $source_zip_file_path.Split('\')
+$source_file_name = $source_file_parts[$source_file_parts.Length - 1]
+$destination_zip_file_path = (Join-Path -Path $deployment_folder_path -ChildPath $source_file_name)
 
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
@@ -40,18 +40,24 @@ function Invoke-RemoteCommand($Command, $Arguments) {
 if ($clean_deployment_folder) {
     Write-Output "Cleaning Target Folder: $deployment_folder_path"
 
-    $clean_script = {
+    $clean = {
         param([string]$path)
         Write-Host "Cleaning destination folder: $path"
         Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
     }
 
-    Invoke-RemoteCommand -Command $clean_script -Arguments $deployment_folder_path
+    Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
 }
 
-# Copy-Item $source_zip_file_path `
-#     -Destination $deployment_folder_path `
-#     -ToSession $so -Credential $credential -Recurse
+[Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
+Write-Host "File Size: ${$zip.Length}"
+$copy = {
+    param([string]$path, [Byte[]]$zip_data)
+    Write-Host "Writing Web App Package: $path"
+    Set-Content -Path $path -Value $zip_data -Encoding Byte
+}
+
+Invoke-RemoteCommand -Command $copy -Arguments $destination_zip_file_path, $zip
 
 # Expand-Archive -Path $destination_zip_file_path `
 #     -DestinationPath $deployment_folder_path `
