@@ -18,7 +18,7 @@ Param(
 Write-Output "Deploy On-Prem Web Application"
 Write-Output "Server: $server"
 
-$source_file_parts = $source_zip_file_path.Split('\')
+$source_file_parts = $source_zip_file_path.Replace('/', '\').Split('\')
 $source_file_name = $source_file_parts[$source_file_parts.Length - 1]
 $destination_zip_file_path = (Join-Path -Path $deployment_folder_path -ChildPath $source_file_name)
 
@@ -52,16 +52,13 @@ if ($clean_deployment_folder) {
 [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
 Write-Host "File Size: ${$zip.Length}"
 $copy = {
-    param([string]$path, [Byte[]]$zip_data)
-    Write-Host "Writing Web App Package: $path"
-    Set-Content -Path $path -Value $zip_data -Encoding Byte
+    param([string]$path, [string]$file, [Byte[]]$zip_data)
+    Write-Host "Writing Web App Package: $file"
+    Set-Content -Path $file -Value $zip_data -Encoding Byte
+    Expand-Archive -Path $file -DestinationPath $path -Force -Confirm $false
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $destination_zip_file_path, $zip
-
-# Expand-Archive -Path $destination_zip_file_path `
-#     -DestinationPath $deployment_folder_path `
-#     -ToSession $so -Credential $credential
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip
 
 # Remove-Item -Path $destination_zip_file_path `
 #     -ToSession $so -Credential $credential
