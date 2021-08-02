@@ -34,11 +34,12 @@ runs:
       shell: powershell
       run: |
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
+        $clean_target = '${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true'
         ${{ github.action_path }}/deploy_on_prem_web_app.ps1 `
           -server ${{ inputs.server }} `
           -user_id ${{ inputs.service-account-id }} `
           -password $secure_password `
           -source_zip_file_path ${{ inputs.source-zip-file-path }} `
           -deployment_folder_path ${{ inputs.deployment-folder-path }} `
-          -clean_deployment_folder ('${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true')  `
+          -clean_deployment_folder  $clean_target `
           -cert_path ${{ inputs.server-public-key }}

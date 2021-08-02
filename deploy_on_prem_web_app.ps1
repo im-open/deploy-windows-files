@@ -28,19 +28,25 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-if ($clean_deployment_folder) {
-    $script = {
-        Param($clean_folder)
-        Write-Host "$clean_folder"
-        Remove-Item "$clean_folder\*.*"
-    }
-
+function Invoke-RemoteCommand($Command, $Arguments) {
     Invoke-Command -ComputerName $server `
         -Credential $credential `
         -UseSSL `
         -SessionOption $so `
-        -ScriptBlock $script `
-        -ArgumentList $deployment_folder_path
+        -ScriptBlock $command `
+        -ArgumentList $arguments
+}
+
+if ($clean_deployment_folder) {
+    Write-Output "Cleaning Target Folder: $deployment_folder_path"
+
+    $clean_script = {
+        param([string]$path)
+        Write-Host "Cleaning destination folder: $path"
+        Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
+    }
+
+    Invoke-RemoteCommand -Command $clean_script -Arguments $deployment_folder_path
 }
 
 # Copy-Item $source_zip_file_path `
