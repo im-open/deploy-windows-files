@@ -3,7 +3,7 @@
 ## Index <!-- omit in toc -->
 
 - [Inputs](#inputs)
-- [Outputs](#outputs)
+- [Prerequisites](#prerequisites)
 - [Example](#example)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -20,11 +20,40 @@
 | `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false |
 | `server-public-key`        | true        | Path to remote server public ssl key (local path like c:\folder)                  |
 
+## Prerequisites
 
-## Outputs
+Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that IIS service commands from the runners  can be received.
 
-None
+Prep the remote IIS server to accept WinRM IIS management calls.  In general the IIS server needs to have a Web Services for Management, [WSMan], listener that looks for incoming Windows Remote Management, [WinRM], calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the IIS server:
 
+  ```powershell
+  $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
+
+  Export-Certificate -Cert $Cert -FilePath C:\temp\<<cert-name>>
+
+  Enable-PSRemoting -SkipNetworkProfileCheck -Force
+
+  # Check for HTTP listeners
+  dir wsman:\localhost\listener
+
+  # If HTTP Listeners exist, remove them
+  Get-ChildItem WSMan:\Localhost\listener | Where -Property Keys -eq "Transport=HTTP" | Remove-Item -Recurse
+
+  # If HTTPs Listeners don't exist, add one
+  New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * -CertificateThumbPrint $Cert.Thumbprint –Force
+
+  # This allows old WinRm hosts to use port 443
+  Set-Item WSMan:\localhost\Service\EnableCompatibilityHttpsListener -Value true
+
+  # Make sure an HTTPs inbound rule is allowed
+  New-NetFirewallRule -DisplayName "Windows Remote Management (HTTPS-In)" -Name "Windows Remote Management (HTTPS-In)" -Profile Any -LocalPort 5986 -Protocol TCP
+
+  # For security reasons, you might want to disable the firewall rule for HTTP that *Enable-PSRemoting* added:
+  Disable-NetFirewallRule -DisplayName "Windows Remote Management (HTTP-In)"
+  ```
+
+- `ip-address` or `fqdn-host-name` can be used for the `DnsName` property in the certificate creation. It should be the name that the actions runner will use to call to the IIS server.
+- `cert-name` can be any name.  This file will used to secure the traffic between the actions runner and the IIS server
 
 ## Example
 
@@ -58,7 +87,6 @@ jobs:
           clean-deployment-folder: 'true'
           server-public-key: ${{ env.cert-path }}
 ```
-
 
 ## Code of Conduct
 
