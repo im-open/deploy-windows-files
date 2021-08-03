@@ -53,9 +53,11 @@ if ($clean_deployment_folder) {
 Write-Host "File Size: ${$zip.Length}"
 $copy = {
     param([string]$path, [string]$file, [Byte[]]$zip_data)
-    Write-Host "Writing Web App Package: $file"
+    Write-Host "Writing Package Archive: $file"
     Set-Content -Path $file -Value $zip_data -Encoding Byte
-    Expand-Archive -Path $file -DestinationPath $path -Force -Confirm $false
+
+    Write-Host "Expanding Package Archive: $file"
+    Expand-Archive -LiteralPath $file -DestinationPath $path -Force
 }
 
 Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip
