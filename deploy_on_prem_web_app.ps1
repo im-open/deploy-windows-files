@@ -50,14 +50,12 @@ if ($clean_deployment_folder) {
 }
 
 [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
-Write-Host "File Size: ${$zip.Length}"
-$zip_size = (Get-Item -Path $source_zip_file_path).Length / 1MB
-
+$zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
 
 $copy = {
     param([string]$path, [string]$file, [Byte[]]$zip_data, [int]$file_size)
     Write-Host "Writing Package Archive: $file"
-    Write-Host "File Size: $file_size MB"
+    Write-Host "File Size: $file_size KB"
     Set-Content -Path $file -Value $zip_data -Encoding Byte
 
     Write-Host "Expanding package archive..."
