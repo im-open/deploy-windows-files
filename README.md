@@ -22,9 +22,9 @@
 
 ## Prerequisites
 
-Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that IIS service commands from the runners  can be received.
+Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that remote sessions can be received.
 
-Prep the remote IIS server to accept WinRM IIS management calls.  In general the IIS server needs to have a Web Services for Management, [WSMan], listener that looks for incoming Windows Remote Management, [WinRM], calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the IIS server:
+Prep the remote Windows server to accept WinRM management calls.  In general the Windows server needs to have a Web Services for Management, [WSMan], listener that looks for incoming Windows Remote Management, [WinRM], calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the Windows server:
 
   ```powershell
   $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
@@ -52,8 +52,8 @@ Prep the remote IIS server to accept WinRM IIS management calls.  In general the
   Disable-NetFirewallRule -DisplayName "Windows Remote Management (HTTP-In)"
   ```
 
-- `ip-address` or `fqdn-host-name` can be used for the `DnsName` property in the certificate creation. It should be the name that the actions runner will use to call to the IIS server.
-- `cert-name` can be any name.  This file will used to secure the traffic between the actions runner and the IIS server
+- `ip-address` or `fqdn-host-name` can be used for the `DnsName` property in the certificate creation. It should be the name that the actions runner will use to call to the Windows server.
+- `cert-name` can be any name.  This file will used to secure the traffic between the actions runner and the Windows server
 
 ## Example
 
@@ -80,10 +80,10 @@ jobs:
       uses: 'im-open/deploy-on-prem-web-app@v1.0.0'
         with:
           server: ${{ env.server }}
-          service-account-id: ${{secrets.iis_admin_user}}
-          service-account-password: ${{secrets.iis_admin_password}}
+          service-account-id: ${{secrets.windows_admin_user}}
+          service-account-password: ${{secrets.windows_admin_password}}
           source-zip-file-path: ${{env.web-app-archive}}
-          deployment-folder-path: 'C:\iis\app_pool'
+          deployment-folder-path: 'C:\services\web_app_dir'
           clean-deployment-folder: 'true'
           server-public-key: ${{ env.cert-path }}
 ```
