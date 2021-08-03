@@ -56,13 +56,13 @@ $copy = {
     Write-Host "Writing Package Archive: $file"
     Set-Content -Path $file -Value $zip_data -Encoding Byte
 
-    Write-Host "Expanding Package Archive: $file"
+    Write-Host "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
+
+    Write-Host "Removing package archive...."
+    Remove-Item -LiteralPath $file
 }
 
 Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip
-
-# Remove-Item -Path $destination_zip_file_path `
-#     -ToSession $so -Credential $credential
 
 Write-Output "Web Application Files deployed."
