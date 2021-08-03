@@ -30,7 +30,6 @@ runs:
   using: 'composite'
   steps:
     - name: Action
-      id: action
       shell: powershell
       run: |
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force

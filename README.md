@@ -22,9 +22,11 @@
 
 ## Prerequisites
 
+The On-Premises Web Application Deployment action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this Self-Hosted, Windows OS GitHubs Actions Runners, `runs-on: [self-hosted, windows-2019]`, must be used.  This will also allow the actions runner access to our on-premises applications servers.
+
 Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that remote sessions can be received.
 
-Prep the remote Windows server to accept WinRM management calls.  In general the Windows server needs to have a Web Services for Management, [WSMan], listener that looks for incoming Windows Remote Management, [WinRM], calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the Windows server:
+Prep the remote Windows server to accept WinRM management calls.  In general the Windows server needs to have a [WSMan] listener that looks for incoming [WinRM] calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the Windows server:
 
   ```powershell
   $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
@@ -60,6 +62,7 @@ Prep the remote Windows server to accept WinRM management calls.  In general the
 ```yml
 ...
 env:
+  server: web-app.domain.com
   cert-path: ./public-server-key
   web-app-archive: ./src/build/web-app.zip
 
@@ -95,3 +98,8 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 ## License
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
+
+<!-- Links -->
+[PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
+[WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
+[WinRM]: https://docs.microsoft.com/en-us/windows/win32/winrm/about-windows-remote-management
