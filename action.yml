@@ -13,7 +13,7 @@ inputs:
     description: 'The service account password'
     required: true
   source-zip-file-path:
-    description: 'The path to ths zip file the application files from'
+    description: 'The path to the zip file that contains the application files'
     required: true
   deployment-folder-path:
     description: 'The path to deploy the application files to'
