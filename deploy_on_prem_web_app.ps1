@@ -51,9 +51,13 @@ if ($clean_deployment_folder) {
 
 [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
 Write-Host "File Size: ${$zip.Length}"
+$zip_size = (Get-Item -Path $source_zip_file_path).Length / 1MB
+
+
 $copy = {
-    param([string]$path, [string]$file, [Byte[]]$zip_data)
+    param([string]$path, [string]$file, [Byte[]]$zip_data, [int]$file_size)
     Write-Host "Writing Package Archive: $file"
+    Write-Host "File Size: $file_size MB"
     Set-Content -Path $file -Value $zip_data -Encoding Byte
 
     Write-Host "Expanding package archive..."
@@ -63,6 +67,6 @@ $copy = {
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip, $zip_size
 
 Write-Output "Web Application Files deployed."
