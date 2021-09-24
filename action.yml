@@ -1,6 +1,6 @@
-name: 'Deploy On-Prem Web Application'
+name: 'Deploy Windows files'
 
-description: 'An action that deploys a web application to an on-prem hosted IIS server.'
+description: 'This action deploys files to a windows machine.'
 
 inputs:
   server:
@@ -32,9 +32,9 @@ runs:
     - name: Action
       shell: powershell
       run: |
-        $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
+        $secure_password = ConvertTo-SecureString -String "${{ inputs.service-account-password }}" -AsPlainText -Force
         $clean_target = '${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true'
-        ${{ github.action_path }}/deploy_on_prem_web_app.ps1 `
+        ${{ github.action_path }}/deploy_windows_files.ps1 `
           -server ${{ inputs.server }} `
           -user_id ${{ inputs.service-account-id }} `
           -password $secure_password `
