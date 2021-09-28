@@ -51,16 +51,18 @@ if ($clean_deployment_folder) {
 
 Write-Output "Copy file: $source_zip_file_path"
 
-[Byte[]]$zip = Get-Content -Path $source_zip_file_path -AsByteStream -Raw
-$zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
+$copy_session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
+Copy-Item -Path $source_zip_file_path -ToSession $copy_session -Destination $destination_zip_file_path
 
-Write-Output "Zip Size: $zip_size"
+# [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
+# $zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
+# Write-Output "Zip Size: $zip_size"
 
 $copy = {
-    param([string]$path, [string]$file, [Byte[]]$zip_data, [int]$file_size)
-    Write-Host "Writing Package Archive: $file"
-    Write-Host "File Size: $file_size KB"
-    Set-Content -Path $file -Value $zip_data -AsByteStream
+    param([string]$path, [string]$file) #, [Byte[]]$zip_data, [int]$file_size)
+    # Write-Host "Writing Package Archive: $file"
+    # Write-Host "File Size: $file_size KB"
+    # Set-Content -Path $file -Value $zip_data -Encoding Byte
 
     Write-Host "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
@@ -69,6 +71,6 @@ $copy = {
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip, $zip_size
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path #, $zip, $zip_size
 
 Write-Output "Web Application Files deployed."
