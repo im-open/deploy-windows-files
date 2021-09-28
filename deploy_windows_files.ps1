@@ -30,10 +30,8 @@ Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 function Invoke-RemoteCommand($Command, $Arguments) {
-    Invoke-Command -ComputerName $server `
+    Invoke-Command `
         -Session $session `
-        -UseSSL `
-        -SessionOption $so `
         -ScriptBlock $command `
         -ArgumentList $arguments
 }
@@ -51,9 +49,7 @@ if ($clean_deployment_folder) {
 }
 
 Write-Output "Copy file: $source_zip_file_path"
-
-$copy_session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
-Copy-Item -Path $source_zip_file_path -ToSession $copy_session -Destination $destination_zip_file_path
+Copy-Item -Path $source_zip_file_path -ToSession $session -Destination $destination_zip_file_path
 
 $copy = {
     param([string]$path, [string]$file)
@@ -65,6 +61,6 @@ $copy = {
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path #, $zip, $zip_size
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path
 
 Write-Output "Web Application Files deployed."
