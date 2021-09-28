@@ -42,35 +42,26 @@ if ($clean_deployment_folder) {
 
     $clean = {
         param([string]$path)
-        Write-Host "Cleaning destination folder: $path"
+        Write-Output "Cleaning destination folder: $path"
         Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
     }
 
     Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
 }
 
-Write-Output "Copy file: $source_zip_file_path"
-
 $copy_session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
 Copy-Item -Path $source_zip_file_path -ToSession $copy_session -Destination $destination_zip_file_path
 
-# [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
-# $zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
-# Write-Output "Zip Size: $zip_size"
-
 $copy = {
-    param([string]$path, [string]$file) #, [Byte[]]$zip_data, [int]$file_size)
-    # Write-Host "Writing Package Archive: $file"
-    # Write-Host "File Size: $file_size KB"
-    # Set-Content -Path $file -Value $zip_data -Encoding Byte
+    param([string]$path, [string]$file)
 
-    Write-Host "Expanding package archive..."
+    Write-Output "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
 
-    Write-Host "Removing package archive...."
+    Write-Output "Removing package archive...."
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path #, $zip, $zip_size
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path
 
-Write-Output "Web Application Files deployed."
+Write-Output "Windws Files deployed."
