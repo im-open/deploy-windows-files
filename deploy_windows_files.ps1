@@ -15,7 +15,7 @@ Param(
     [string]$cert_path
 )
 
-Write-Output "Deploy On-Prem Web Application"
+Write-Output "Deploy Windows Files"
 Write-Output "Server: $server"
 
 $source_file_parts = $source_zip_file_path.Replace('/', '\').Split('\')
@@ -49,8 +49,12 @@ if ($clean_deployment_folder) {
     Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
 }
 
+Write-Output "Copy file: $source_zip_file_path"
+
 [Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
 $zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
+
+Write-Output "Zip Size: $zip_size"
 
 $copy = {
     param([string]$path, [string]$file, [Byte[]]$zip_data, [int]$file_size)
