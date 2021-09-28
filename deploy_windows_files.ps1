@@ -42,12 +42,14 @@ if ($clean_deployment_folder) {
 
     $clean = {
         param([string]$path)
-        Write-Output "Cleaning destination folder: $path"
+        Write-Host "Cleaning destination folder: $path"
         Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
     }
 
     Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
 }
+
+Write-Output "Copy file: $source_zip_file_path"
 
 $copy_session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
 Copy-Item -Path $source_zip_file_path -ToSession $copy_session -Destination $destination_zip_file_path
@@ -55,13 +57,13 @@ Copy-Item -Path $source_zip_file_path -ToSession $copy_session -Destination $des
 $copy = {
     param([string]$path, [string]$file)
 
-    Write-Output "Expanding package archive..."
+    Write-Host "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
 
-    Write-Output "Removing package archive...."
+    Write-Host "Removing package archive...."
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path #, $zip, $zip_size
 
-Write-Output "Windws Files deployed."
+Write-Output "Web Application Files deployed."
