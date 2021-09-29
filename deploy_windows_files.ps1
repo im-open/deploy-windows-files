@@ -15,7 +15,7 @@ Param(
     [string]$cert_path
 )
 
-Write-Output "Deploy On-Prem Web Application"
+Write-Output "Deploy Windows Files"
 Write-Output "Server: $server"
 
 $source_file_parts = $source_zip_file_path.Replace('/', '\').Split('\')
@@ -24,15 +24,14 @@ $destination_zip_file_path = (Join-Path -Path $deployment_folder_path -ChildPath
 
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+$session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
 
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 function Invoke-RemoteCommand($Command, $Arguments) {
-    Invoke-Command -ComputerName $server `
-        -Credential $credential `
-        -UseSSL `
-        -SessionOption $so `
+    Invoke-Command `
+        -Session $session `
         -ScriptBlock $command `
         -ArgumentList $arguments
 }
@@ -49,14 +48,11 @@ if ($clean_deployment_folder) {
     Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
 }
 
-[Byte[]]$zip = Get-Content -Path $source_zip_file_path -Encoding Byte
-$zip_size = (Get-Item -Path $source_zip_file_path).Length / 1KB
+Write-Output "Copy file: $source_zip_file_path"
+Copy-Item -Path $source_zip_file_path -ToSession $session -Destination $destination_zip_file_path
 
 $copy = {
-    param([string]$path, [string]$file, [Byte[]]$zip_data, [int]$file_size)
-    Write-Host "Writing Package Archive: $file"
-    Write-Host "File Size: $file_size KB"
-    Set-Content -Path $file -Value $zip_data -Encoding Byte
+    param([string]$path, [string]$file)
 
     Write-Host "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
@@ -65,6 +61,6 @@ $copy = {
     Remove-Item -LiteralPath $file
 }
 
-Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path, $zip, $zip_size
+Invoke-RemoteCommand -Command $copy -Arguments $deployment_folder_path, $destination_zip_file_path
 
 Write-Output "Web Application Files deployed."
