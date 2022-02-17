@@ -11,7 +11,7 @@ Param(
     [string]$deployment_folder_path,
     [parameter(Mandatory = $true)]
     [bool]$clean_deployment_folder,
-    [parameter(Mandatory = $true)]
+    [parameter(Mandatory = $false)]
     [string]$cert_path
 )
 
@@ -26,8 +26,10 @@ $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 $session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
 
-Write-Output "Importing remote server cert..."
-Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
+if ($cert_path.Length -gt 0) {
+    Write-Output "Importing remote server cert..."
+    Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
+}
 
 function Invoke-RemoteCommand($Command, $Arguments) {
     Invoke-Command `
