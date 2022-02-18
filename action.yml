@@ -22,10 +22,6 @@ inputs:
     description: 'Remove files that are not in the source zip file, accepts values of true or false'
     required: false
     default: 'false'
-  server-cert-path:
-    description: 'Path to remote server public ssl cert, only necessary if the cert is not already installed on the actions runner'
-    required: false
-    default: ''
 
 runs:
   using: 'composite'
@@ -41,5 +37,4 @@ runs:
           -password $secure_password `
           -source_zip_file_path '${{ inputs.source-zip-file-path }}' `
           -deployment_folder_path '${{ inputs.deployment-folder-path }}' `
-          -clean_deployment_folder  $clean_target `
-          -cert_path '${{ inputs.server-cert-path }}'
+          -clean_deployment_folder  $clean_target

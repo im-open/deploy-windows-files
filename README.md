@@ -14,15 +14,14 @@ This action deploys files to a windows machine.
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                                                                                      |
-| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
-| `server`                   | true        | The name of the target server                                                                                    |
-| `service-account-id`       | true        | The service account name                                                                                         |
-| `service-account-password` | true        | The service account password                                                                                     |
-| `source-zip-file-path`     | true        | The path to the zip file that contains the application files                                                     |
-| `deployment-folder-path`   | true        | The path to deploy the application files to                                                                      |
-| `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false                                |
-| `server-cert-path`         | false       | Path to remote server public ssl cert, only necessary if the cert is not already installed on the actions runner |
+| Parameter                  | Is Required | Description                                                                       |
+| -------------------------- | ----------- | --------------------------------------------------------------------------------- |
+| `server`                   | true        | The name of the target server                                                     |
+| `service-account-id`       | true        | The service account name                                                          |
+| `service-account-password` | true        | The service account password                                                      |
+| `source-zip-file-path`     | true        | The path to the zip file that contains the application files                      |
+| `deployment-folder-path`   | true        | The path to deploy the application files to                                       |
+| `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false |
 
 ## Prerequisites
 
