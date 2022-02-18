@@ -10,9 +10,7 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$deployment_folder_path,
     [parameter(Mandatory = $true)]
-    [bool]$clean_deployment_folder,
-    [parameter(Mandatory = $true)]
-    [string]$cert_path
+    [bool]$clean_deployment_folder
 )
 
 Write-Output "Deploy Windows Files"
@@ -25,9 +23,6 @@ $destination_zip_file_path = (Join-Path -Path $deployment_folder_path -ChildPath
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 $session = New-PSSession $server -SessionOption $so -UseSSL -Credential $credential
-
-Write-Output "Importing remote server cert..."
-Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 function Invoke-RemoteCommand($Command, $Arguments) {
     Invoke-Command `

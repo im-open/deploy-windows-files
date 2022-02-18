@@ -8,7 +8,7 @@ This action deploys files to a windows machine.
 - [Prerequisites](#prerequisites)
 - [Example](#example)
 - [Contributing](#contributing)
-	- [Incrementing the Version](#incrementing-the-version)
+  - [Incrementing the Version](#incrementing-the-version)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
@@ -22,7 +22,6 @@ This action deploys files to a windows machine.
 | `source-zip-file-path`     | true        | The path to the zip file that contains the application files                      |
 | `deployment-folder-path`   | true        | The path to deploy the application files to                                       |
 | `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false |
-| `server-public-key`        | true        | Path to remote server public ssl key (local path like c:\folder)                  |
 
 ## Prerequisites
 
@@ -67,7 +66,6 @@ Prep the remote Windows server to accept WinRM management calls.  In general the
 ...
 env:
   server: web-app.domain.com
-  cert-path: ./public-server-key
   web-app-archive: ./src/build/web-app.zip
 
 jobs:
@@ -84,7 +82,7 @@ jobs:
       ...
 
       deploy-package:
-      uses: 'im-open/deploy-windows-files@v1.0.3'
+      uses: im-open/deploy-windows-files@v2.0.0
         with:
           server: ${{ env.server }}
           service-account-id: ${{secrets.windows_admin_user}}
@@ -92,7 +90,6 @@ jobs:
           source-zip-file-path: ${{env.web-app-archive}}
           deployment-folder-path: 'C:\services\web_app_dir'
           clean-deployment-folder: 'true'
-          server-public-key: ${{ env.cert-path }}
 ```
 
 ## Contributing
