@@ -29,7 +29,7 @@ runs:
     - name: Action
       shell: powershell
       run: |
-        $secure_password = ConvertTo-SecureString -String "${{ inputs.service-account-password }}" -AsPlainText -Force
+        $secure_password = ConvertTo-SecureString -String '${{ inputs.service-account-password }}' -AsPlainText -Force
         $clean_target = '${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true'
         ${{ github.action_path }}/deploy_windows_files.ps1 `
           -server '${{ inputs.server }}' `
