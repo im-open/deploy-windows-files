@@ -82,7 +82,7 @@ jobs:
       ...
 
       deploy-package:
-      uses: im-open/deploy-windows-files@v2.0.2
+      uses: im-open/deploy-windows-files@v2.0.3
         with:
           server: ${{ env.server }}
           service-account-id: ${{secrets.windows_admin_user}}
