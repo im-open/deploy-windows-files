@@ -28,10 +28,11 @@ runs:
   steps:
     - name: Action
       shell: powershell
-      env:
-        SERVICE_ACCOUNT_PASSWORD: ${{ inputs.service-account-password }}
       run: |
-        $secure_password = ConvertTo-SecureString -String $Env:SERVICE_ACCOUNT_PASSWORD -AsPlainText -Force
+        $password_string = @'
+        ${{ inputs.service-account-password }}
+        '@
+        $secure_password = ConvertTo-SecureString -String $password_string -AsPlainText -Force
         $clean_target = '${{ inputs.clean-deployment-folder }}'.ToLower() -eq 'true'
         ${{ github.action_path }}/deploy_windows_files.ps1 `
           -server '${{ inputs.server }}' `
