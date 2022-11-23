@@ -10,7 +10,9 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$deployment_folder_path,
     [parameter(Mandatory = $true)]
-    [bool]$clean_deployment_folder
+    [bool]$clean_deployment_folder,
+    [parameter(Mandatory = $false)]
+    [string]$exclude_from_purge
 )
 
 Write-Output "Deploy Windows Files"
@@ -33,14 +35,16 @@ function Invoke-RemoteCommand($Command, $Arguments) {
 
 if ($clean_deployment_folder) {
     Write-Output "Cleaning Target Folder: $deployment_folder_path"
+    Write-Output "Excluding From Purge: $exclude_from_purge"
 
     $clean = {
-        param([string]$path)
+        param([string]$path, [string]$itemsToExclude)
         Write-Host "Cleaning destination folder: $path"
-        Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
+        $itemsToExcludeList = $itemsToExclude.Split(",")
+        Get-ChildItem -Path $path -Exclude $itemsToExcludeList | Get-ChildItem -Recurse | ForEach-Object { Remove-item -path $_.FullName -Recurse -Force }
     }
 
-    Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
+    Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path, $exclude_from_purge
 }
 
 Write-Output "Copy file: $source_zip_file_path"
