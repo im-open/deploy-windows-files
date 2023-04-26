@@ -1,6 +1,6 @@
 # Deploy Windows Files
 
-This action deploys files to a windows machine.
+This action deploys files from a local .zip archive to a remote windows machine and expands the archive into a destination directory. The destination directory must already exist on the remote machine.
 
 ## Index <!-- omit in toc -->
 
