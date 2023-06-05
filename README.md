@@ -1,6 +1,6 @@
 # Deploy Windows Files
 
-This action deploys files to a windows machine.
+This action deploys files from a local .zip archive to a remote windows machine and expands the archive into a destination directory. The destination directory must already exist on the remote machine.
 
 ## Index <!-- omit in toc -->
 
@@ -83,6 +83,7 @@ jobs:
       ...
 
       deploy-package:
+      # You may also reference the major or major.minor version
       uses: im-open/deploy-windows-files@v2.1.0
         with:
           server: ${{ env.server }}
@@ -131,6 +132,5 @@ Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license]
 
 <!-- Links -->
 [git-version-lite]: https://github.com/im-open/git-version-lite
-[PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
 [WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
 [WinRM]: https://docs.microsoft.com/en-us/windows/win32/winrm/about-windows-remote-management
