@@ -38,10 +38,11 @@ if ($clean_deployment_folder) {
     Write-Output "Excluding From Purge: $exclude_from_purge"
 
     $clean = {
-        param([string]$path, [string]$itemsToExclude)
-        Write-Host "Cleaning destination folder: $path"
-        $itemsToExcludeList = $itemsToExclude.Split(",")
-        Get-ChildItem -Path $path -Exclude $itemsToExcludeList | Get-ChildItem -Recurse | ForEach-Object { Remove-item -path $_.FullName -Recurse -Force }
+        param([string]$path, [string]$excludedItemsList)
+        Write-Output "Cleaning destination folder: $path"
+        Write-Output "Excluding from purge: $excludedItemsList"
+        $itemsToExclude = $excludedItemsList.Split(",")
+        Get-ChildItem -Path $path -Exclude $itemsToExclude | Get-ChildItem -Recurse | ForEach-Object { Remove-item -path $_.FullName -Recurse -Force }
     }
 
     Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path, $exclude_from_purge
@@ -53,10 +54,10 @@ Copy-Item -Path $source_zip_file_path -ToSession $session -Destination $destinat
 $copy = {
     param([string]$path, [string]$file)
 
-    Write-Host "Expanding package archive..."
+    Write-Output "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
 
-    Write-Host "Removing package archive...."
+    Write-Output "Removing package archive...."
     Remove-Item -LiteralPath $file
 }
 
