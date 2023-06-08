@@ -22,6 +22,10 @@ inputs:
     description: 'Remove files that are not in the source zip file, accepts values of true or false'
     required: false
     default: 'false'
+  exclude-from-purge:
+    description: 'Comma separated list of folders or files to leave when the deployment folder is purged'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -39,5 +43,6 @@ runs:
           -user_id '${{ inputs.service-account-id }}' `
           -password $secure_password `
           -source_zip_file_path '${{ inputs.source-zip-file-path }}' `
+          -exclude_from_purge: '${{ inputs.exclude-from-purge }}' `
           -deployment_folder_path '${{ inputs.deployment-folder-path }}' `
           -clean_deployment_folder  $clean_target

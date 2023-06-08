@@ -14,14 +14,15 @@ This action deploys files from a local .zip archive to a remote windows machine 
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                                                       |
-| -------------------------- | ----------- | --------------------------------------------------------------------------------- |
-| `server`                   | true        | The name of the target server                                                     |
-| `service-account-id`       | true        | The service account name                                                          |
-| `service-account-password` | true        | The service account password                                                      |
-| `source-zip-file-path`     | true        | The path to the zip file that contains the application files                      |
-| `deployment-folder-path`   | true        | The path to deploy the application files to                                       |
-| `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false |
+| Parameter                  | Is Required | Description                                                                            |
+|----------------------------| ----------- |----------------------------------------------------------------------------------------|
+| `server`                   | true        | The name of the target server                                                          |
+| `service-account-id`       | true        | The service account name                                                               |
+| `service-account-password` | true        | The service account password                                                           |
+| `source-zip-file-path`     | true        | The path to the zip file that contains the application files                           |
+| `deployment-folder-path`   | true        | The path to deploy the application files to                                            |
+| `clean-deployment-folder`  | false       | Remove files that are not in the source zip file, accepts values of true or false      |
+| `exclude-from-purge`       | false       | Comma separated list of folders or files to leave when the deployment folder is purged |
 
 ## Prerequisites
 
@@ -83,7 +84,7 @@ jobs:
 
       deploy-package:
       # You may also reference the major or major.minor version
-      uses: im-open/deploy-windows-files@v2.0.4
+      uses: im-open/deploy-windows-files@v2.1.0
         with:
           server: ${{ env.server }}
           service-account-id: ${{secrets.windows_admin_user}}
@@ -91,6 +92,7 @@ jobs:
           source-zip-file-path: ${{env.web-app-archive}}
           deployment-folder-path: 'C:\services\web_app_dir'
           clean-deployment-folder: 'true'
+          exclude-from-purge: 'logs'
 ```
 
 ## Contributing

@@ -10,7 +10,9 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$deployment_folder_path,
     [parameter(Mandatory = $true)]
-    [bool]$clean_deployment_folder
+    [bool]$clean_deployment_folder,
+    [parameter(Mandatory = $false)]
+    [string]$exclude_from_purge
 )
 
 Write-Output "Deploy Windows Files"
@@ -33,14 +35,17 @@ function Invoke-RemoteCommand($Command, $Arguments) {
 
 if ($clean_deployment_folder) {
     Write-Output "Cleaning Target Folder: $deployment_folder_path"
+    Write-Output "Excluding From Purge: $exclude_from_purge"
 
     $clean = {
-        param([string]$path)
-        Write-Host "Cleaning destination folder: $path"
-        Get-ChildItem -Path $path -Recurse | ForEach-Object { Remove-item -Recurse -path $_.FullName }
+        param([string]$path, [string]$excludedItemsList)
+        Write-Output "Cleaning destination folder: $path"
+        Write-Output "Excluding from purge: $excludedItemsList"
+        $itemsToExclude = $excludedItemsList.Split(",")
+        Get-ChildItem -Path $path -Exclude $itemsToExclude | Get-ChildItem -Recurse | ForEach-Object { Remove-item -path $_.FullName -Recurse -Force }
     }
 
-    Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path
+    Invoke-RemoteCommand -Command $clean -Arguments $deployment_folder_path, $exclude_from_purge
 }
 
 Write-Output "Copy file: $source_zip_file_path"
@@ -49,10 +54,10 @@ Copy-Item -Path $source_zip_file_path -ToSession $session -Destination $destinat
 $copy = {
     param([string]$path, [string]$file)
 
-    Write-Host "Expanding package archive..."
+    Write-Output "Expanding package archive..."
     Expand-Archive -LiteralPath $file -DestinationPath $path -Force
 
-    Write-Host "Removing package archive...."
+    Write-Output "Removing package archive...."
     Remove-Item -LiteralPath $file
 }
 
